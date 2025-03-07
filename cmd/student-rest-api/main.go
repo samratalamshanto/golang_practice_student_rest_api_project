@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/database"
 	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/routers"
 	"log"
@@ -9,10 +8,11 @@ import (
 
 func main() {
 
-	database.ConnectDB()
-	r := routers.SetupRoutes()
+	if err := database.ConnectDB(); err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Println("Hello World.")
+	r := routers.SetupRoutes()
 
 	err := r.Run(":8080")
 	if err != nil {

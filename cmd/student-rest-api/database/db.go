@@ -12,10 +12,10 @@ import (
 
 var DB *gorm.DB
 
-func ConnectDB() {
+func ConnectDB() error {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		return fmt.Errorf("Error loading .env file, error=%s", err.Error())
 	}
 
 	//Data Source Name-> dsn, connStr
@@ -29,9 +29,11 @@ func ConnectDB() {
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatal("Failed to connect to the DB: ", err)
+		return fmt.Errorf("Error connecting to database, %s", err.Error())
 	}
 
 	log.Println("Successfully connected to the DB")
 	DB = db
+
+	return nil
 }
