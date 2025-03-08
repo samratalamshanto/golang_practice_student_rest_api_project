@@ -30,6 +30,7 @@ func ErrorResponse(c *gin.Context, msg string, err interface{}) {
 		Message: msg,
 		MSG:     msg,
 		Error:   err,
+		Err:     err,
 		Data:    nil,
 	})
 }

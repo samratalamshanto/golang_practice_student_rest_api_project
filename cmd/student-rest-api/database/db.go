@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/models"
 	"log"
 	"os"
 
@@ -34,6 +35,11 @@ func ConnectDB() error {
 
 	log.Println("Successfully connected to the DB")
 	DB = db
+
+	//Auto Migrate
+	if err := db.AutoMigrate(&models.Student{}, &models.Course{}, &models.Teacher{}, &models.Users{}); err != nil {
+		return err
+	}
 
 	return nil
 }
