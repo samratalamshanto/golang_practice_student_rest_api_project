@@ -5,12 +5,14 @@ import (
 	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/models"
 	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/service"
 	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/utility"
+	"log"
 	"strconv"
 )
 
 func GetAllStudents(c *gin.Context) {
 	res, err := service.GetStudents()
 	if err != nil {
+		log.Println("Failed to get all students. Error= " + err.Error())
 		utility.ErrorResponse(c, "Failed to get all students. Error= "+err.Error(), err)
 		return
 	}
