@@ -6,6 +6,7 @@ import (
 )
 
 type CommonResponse struct {
+	Code    int         `json:"code"`
 	Success bool        `json:"success"`
 	Message string      `json:"message"`
 	MSG     string      `json:"msg"`
@@ -16,16 +17,18 @@ type CommonResponse struct {
 
 func SuccessResponse(c *gin.Context, msg string, data interface{}) {
 	c.JSON(http.StatusOK, CommonResponse{
+		Code:    http.StatusOK,
 		Success: true,
 		Message: msg,
 		MSG:     msg,
-		Data:    data,
+		Data:    data, //Go internally resolves the pointer before converting it to JSON. Automatically handles dereferencing when it marshals the data into JSON.
 		Error:   nil,
 	})
 }
 
 func ErrorResponse(c *gin.Context, msg string, err interface{}) {
 	c.JSON(http.StatusInternalServerError, CommonResponse{
+		Code:    http.StatusInternalServerError,
 		Success: false,
 		Message: msg,
 		MSG:     msg,

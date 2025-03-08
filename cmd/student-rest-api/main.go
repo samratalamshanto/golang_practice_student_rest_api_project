@@ -14,7 +14,7 @@ func main() {
 
 	r := routers.SetupRoutes()
 
-	err := r.Run(":8080")
+	err := r.Run(":9090")
 	if err != nil {
 		log.Fatal(err)
 	}
