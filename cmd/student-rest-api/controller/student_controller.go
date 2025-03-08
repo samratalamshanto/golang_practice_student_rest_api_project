@@ -37,7 +37,7 @@ func GetStudent(c *gin.Context) {
 }
 
 func CreateOrUpdateStudent(c *gin.Context) {
-	var student models.Student
+	var student []models.Student
 	if err := c.ShouldBindJSON(&student); err != nil {
 		utility.ErrorResponse(c, "Bad Request. User type JSON expected.", err)
 		return

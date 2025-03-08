@@ -18,8 +18,8 @@ func GetStudent(id int) (*models.Student, error) {
 	return &student, res.Error
 }
 
-func CreateOrUpdateStudent(student models.Student) (*models.Student, error) {
-	res := database.DB.Save(&student)
+func CreateOrUpdateStudent(student []models.Student) (*[]models.Student, error) {
+	res := database.DB.Save(&student) //batch insert, update for better performance
 	return &student, res.Error
 }
 
