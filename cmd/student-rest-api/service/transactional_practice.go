@@ -5,6 +5,9 @@ import (
 	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/database"
 	"github.com/samratalamshanto/student_rest_api_project/cmd/student-rest-api/models"
 	"gorm.io/gorm"
+	"math/rand"
+	"strings"
+	"time"
 )
 
 func TransactionalByManually() error {
@@ -121,4 +124,53 @@ func transactionWithOptimisticLock(db *gorm.DB) {
 	if err != nil {
 		fmt.Println("Transaction failed:", err)
 	}
+}
+
+// RetryTransaction handles retries on deadlock
+func RetryTransaction(db *gorm.DB, maxRetries int) error {
+	var err error
+
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		err = db.Transaction(func(tx *gorm.DB) error {
+			tx.Exec("SET statement_timeout = '10s'")                   // Set timeout for transaction
+			tx.Exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ") // Set isolation level
+
+			var student models.Student
+			if err := tx.Clauses(gorm.Expr("FOR UPDATE")).First(&student, 1).Error; err != nil {
+				return err
+			}
+
+			// Simulate work by sleeping
+			time.Sleep(2 * time.Second)
+
+			student.Age += 5
+			if err := tx.Save(&student).Error; err != nil {
+				return err
+			}
+
+			return nil // Success
+		})
+
+		if err == nil {
+			// Transaction succeeded, exit retry loop
+			return nil
+		}
+
+		// Check for deadlock error (PostgreSQL deadlock error code: 40P01)
+		if err != nil && isDeadlockError(err) {
+			fmt.Printf("Deadlock detected. Retrying %d/%d...\n", attempt, maxRetries)
+			time.Sleep(time.Duration(rand.Intn(1000)) * time.Millisecond) // Randomized backoff
+			continue
+		}
+
+		// Other errors: No need to retry, return the error
+		break
+	}
+
+	return fmt.Errorf("transaction failed after %d retries: %w", maxRetries, err)
+}
+
+// Detect Deadlock Errors
+func isDeadlockError(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "deadlock detected")
 }
